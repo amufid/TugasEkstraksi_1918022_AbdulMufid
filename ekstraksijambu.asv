@@ -1,0 +1,264 @@
+function varargout = ekstraksijambu(varargin)
+% EKSTRAKSIJAMBU MATLAB code for ekstraksijambu.fig
+%      EKSTRAKSIJAMBU, by itself, creates a new EKSTRAKSIJAMBU or raises the existing
+%      singleton*.
+%
+%      H = EKSTRAKSIJAMBU returns the handle to a new EKSTRAKSIJAMBU or the handle to
+%      the existing singleton*.
+%
+%      EKSTRAKSIJAMBU('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in EKSTRAKSIJAMBU.M with the given input arguments.
+%
+%      EKSTRAKSIJAMBU('Property','Value',...) creates a new EKSTRAKSIJAMBU or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before ekstraksijambu_OpeningFcn gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to ekstraksijambu_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help ekstraksijambu
+
+% Last Modified by GUIDE v2.5 28-May-2022 10:51:22
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @ekstraksijambu_OpeningFcn, ...
+                   'gui_OutputFcn',  @ekstraksijambu_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before ekstraksijambu is made visible.
+function ekstraksijambu_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to ekstraksijambu (see VARARGIN)
+
+% Choose default command line output for ekstraksijambu
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes ekstraksijambu wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = ekstraksijambu_OutputFcn(hObject, eventdata, handles) 
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+% --- Executes on button press in pushbutton1.
+function pushbutton1_Callback(hObject, eventdata, handles)
+[filename,pathname] = uigetfile('*.jpg');
+ 
+if ~isequal(filename,0)
+    Img = imread(fullfile(pathname,filename));
+    axes(handles.axes1)
+    imshow(Img)
+else
+    return
+end
+ 
+handles.Img = Img;
+guidata(hObject, handles)
+
+% hObject    handle to pushbutton1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+Img = handles.Img;
+ 
+Img_gray = rgb2gray(Img);
+axes(handles.axes2)
+imshow(Img_gray)
+ 
+
+ 
+handles.Img_gray = Img_gray;
+guidata(hObject, handles)
+
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)
+open=guidata(gcbo);
+a = handles.Img;
+b=imresize(a,[256 256]); 
+c=RGB2gray(b); 
+[pikselCounts, GLs] = imhist(c); 
+numberOfPiksels = sum(pikselCounts); 
+meanGL = sum(GLs .* pikselCounts) / numberOfPiksels; 
+varianceGL  =  sum((GLs - meanGL)  .^  2  .* pikselCounts)/(numberOfPiksels-1); 
+sd = sqrt(varianceGL); 
+skew = sum((GLs  -  meanGL) .^ 3 .* pikselCounts) / ((numberOfPiksels  -1) * sd^3); 
+kur = sum((GLs  -  meanGL) .^ 4 .* pikselCounts) / ((numberOfPiksels  -1) * sd^4); 
+IDM=sum(numberOfPiksels/(1+(pikselCounts-GLs).^2)); 
+e=entropy(c); 
+GLCM2 = graycomatrix(c); 
+F = graycoprops(GLCM2,'all'); 
+z=F.Contrast; 
+y=F.Correlation; 
+x=F. Energy; 
+w=F.Homogeneity; 
+display(['Contrast= ',num2str(z)]) 
+display(['Correlation= ',num2str(y)]) 
+display(['Energy= ',num2str(x)]) 
+display(['Homogeneity= ',num2str(w)])  
+display(['mean= ',num2str(meanGL)]) 
+display(['variance= ',num2str(varianceGL)]) 
+display(['stdaardDeviation= ',num2str(sd)]) 
+display(['skewnees= ',num2str(skew)]) 
+display(['kurtosis= ',num2str(kur)]) 
+display(['entropy= ',num2str(e)]) 
+display(['IDM= ',num2str(IDM)])
+
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function Contrast_Callback(hObject, eventdata, handles)
+% hObject    handle to Contrast (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Contrast as text
+%        str2double(get(hObject,'String')) returns contents of Contrast as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Contrast_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Contrast (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function Correlation_Callback(hObject, eventdata, handles)
+% hObject    handle to Correlation (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Correlation as text
+%        str2double(get(hObject,'String')) returns contents of Correlation as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Correlation_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Correlation (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function Energy_Callback(hObject, eventdata, handles)
+% hObject    handle to Energy (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Energy as text
+%        str2double(get(hObject,'String')) returns contents of Energy as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Energy_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Energy (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function Homogeneity_Callback(hObject, eventdata, handles)
+% hObject    handle to Homogeneity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Homogeneity as text
+%        str2double(get(hObject,'String')) returns contents of Homogeneity as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Homogeneity_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Homogeneity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function mean_Callback(hObject, eventdata, handles)
+% hObject    handle to mean (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of mean as text
+%        str2double(get(hObject,'String')) returns contents of mean as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function mean_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mean (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
